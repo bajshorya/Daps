@@ -1,44 +1,21 @@
 import "./App.css";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { createPublicClient, http } from "viem";
+import { mainnet, sepolia } from "viem/chains";
 
-const getter = async () => {
-  const response = await fetch("https://jsonplaceholder.typicode.com/posts");
-  const json = await response.json();
-  return json;
-};
-const queryClient = new QueryClient();
-
+const client = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+});
 function App() {
-  return (
-    <>
-      {/* Pass the queryClient instance to QueryClientProvider */}
-      <QueryClientProvider client={queryClient}>
-        <Posts />
-      </QueryClientProvider>
-    </>
-  );
-}
-function Posts() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["posts"],
-    queryFn: getter,
-    refetchInterval: 1000,
-  });
-  if (isLoading) return "Loading...";
-  if (error) return <div>An error has occurred: {error.message}</div>;
-
+  const getBalance = async () => {
+    const balance = await client.getBalance({
+      address: "0x4c09Cd3C48C9A5A6B3cc68AB5b069B8B3e311E4C",
+    });
+    console.log(balance);
+  };
   return (
     <div>
-      <ul>
-        {data?.map((todo) => (
-          <li key={todo.id}>{todo.title}</li>
-        ))}
-      </ul>
+      <button onClick={getBalance}> get balanace </button>
     </div>
   );
 }
